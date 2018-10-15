@@ -1,0 +1,380 @@
+---
+title: "Assignment1"
+author: "Jaymo Kim"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Section 4.1.1
+#### Exercise 2
+#### Part(a)
+```{r}
+Fib <- numeric(30)
+Fib[1] <- Fib[2] <- 1
+for(i in 3:30) {
+    Fib[i] <- Fib[i - 2] + Fib[i - 1]
+}
+Fib.ratio <- numeric(29)
+for(i in 2:30) {
+    Fib.ratio[i] <- Fib[i]/Fib[i - 1]
+}
+Fib.ratio
+```
+
+The sequence of ratios of Fibonacci numbers seems to be converging to `r Fib.ratio[29]`.
+
+#### Part(b)
+```{r}
+gr <- (1 + sqrt(5))/2
+```
+
+The golden ratio is equal to `r gr` and the sequence computed above converges to this golden ratio.
+***
+Proof:
+***
+Let $\phi$ denote the golden ratio $= \frac{1 + \sqrt{5}}{2}$.
+Then $\phi$ has a property of $\phi = 1 + \frac{1}{\phi}$.
+Now, let $R_n = \frac{F_{n+1}}{F_n}$, where $F_n$ denotes the $n^{th}$ Fibonacci number for n = 1, 2,...
+By definition, we can derive that $R_n = \frac{F_{n+1}}{F_n} = \frac{F_n + F_{n-1}}{F_n} = 1 + \frac{1}{R_{n-1}}$.
+Then, $\forall n = 1, 2, 3,\dots$, $|R_n - \phi| = |\left(1 + \frac{1}{R_{n-1}}\right) - \left(1 + \frac{1}{\phi}\right)| = |\frac{1}{R_{n-1}} - \frac{1}{\phi}| = |\frac{\phi - R_{n-1}}{R_{n-1}\phi}| \leq \frac{1}{\phi}|R_{n-1} - \phi| \leq \left(\frac{1}{\phi}\right)^{n-1}|R_1 - \phi|$.
+Since $0 < \frac{1}{\phi} < 1$, $\lim_\limits{n \to \infty} \left(\frac{1}{\phi}\right)^{n-1} = 0$ which implies $\lim_\limits{n \to \infty} |R_n - \phi| = 0$.
+Therefore, $\lim_\limits{n \to \infty} \frac{F_{n+1}}{F_n} = \phi$.
+
+#### Exercise 3
+#### Part(a)
+Answer is summing up all values from 1 to 5, $1+2+3+4+5 = 15$
+```{r}
+answer <- 0 
+for(j in 1:5) answer <- answer + j
+answer
+```
+
+#### Part(b)
+Answer is a list consisting of all values of j (1 through 5) in an increasing order.
+```{r}
+answer <- NULL
+for(j in 1:5) answer <- c(answer,j)
+answer
+```
+
+#### Part(c)
+Similar to part b, answer is a listing consisting of all values of j in an increasing order with 0 in the beginning of the list.
+```{r}
+answer <- 0
+for(j in 1:5) answer <- c(answer,j)
+answer
+```
+
+#### Part(d)
+Answer is obtained by multiplying 1 through 5, $1*2*3*4*5 = 120$.
+```{r}
+answer <- 1
+for(j in 1:5) answer <- answer * j
+answer
+```
+
+#### Part(e)
+Answer would be a list containing 3 as a first element and following elements to be 7 * (previous element in the list) %% 31.
+Without knowing the rule used to determine this sequence, it would have been extremely hard to predict successive elements as the sequence requires a knowledge of calling the element in a list.
+```{r}
+answer <- 3
+for(j in 1:15) answer <- c(answer, (7 * answer[j]) %% 31)
+answer
+```
+
+### Section 4.1.2
+#### Exercise 4
+```{r}
+interest <- function(p, n) {
+    if(n > 3) {
+        i = 0.05
+    }
+    else {
+        i = 0.04
+    }
+    i = p*((1 + i)^n - 1)
+    return(i)
+}
+```
+
+#### Exercise 5
+```{r}
+mortgage <- function(n, P, open) {
+    if(open == TRUE) {
+        i = 0.005
+    }
+    else {
+        i = 0.004
+    }
+    R = (P*i)/(1-(1+i)^(-n))
+    return(R)
+}
+```
+
+### Section 4.1.3
+#### Exercise 2
+```{r}
+Fibonacci <- c(1, 1)
+# I will condition the Fibonacci numbers to show until the lateset Fibonacci number is less than 300 (preventing infinite loop).
+while(Fibonacci[length(Fibonacci)] < 300){
+    Fibonacci <- c(Fibonacci, Fibonacci[length(Fibonacci)])
+    Fibonacci[length(Fibonacci)] <- Fibonacci[length(Fibonacci) - 1] + Fibonacci[length(Fibonacci) - 2]
+}
+Fibonacci <- Fibonacci[-length(Fibonacci)] # This is to get rid of the latest Fibonacci number which is greater than 300, or upper bound.
+```
+
+#### Exercise 4
+```{r}
+i <- 0.006
+j <- 1
+while(j > 0.000001) {
+    newi <- (1 - (1 + i)^(-20))/19
+    j <- abs(newi - i)
+    i <- newi
+}
+i
+```
+Even if you start with different starting guesses, the value of interest rate, i, converges to `r i`.
+
+#### Exercise 5
+```{r}
+i <- 0.006
+j <- 1
+n <- 0
+while(j > 0.000001) {
+    newi <- (1 - (1 + i)^(-20))/19
+    j <- abs(newi - i)
+    i <- newi
+    n <- n + 1
+}
+i
+n
+```
+It can be noticed from this while loop that the number of iteration for a while loop differs based on the value of starting guesses.
+
+### Section 4.1.5
+#### Exercise 2
+#### Part(a)
+```{r}
+Eratothenes <- function(n) {
+    # Print prime numbers up to n (based on the sieve of Eratothenes)
+    if(n >= 2) {
+        sieve <- seq(2, n)
+        primes <- c()
+        while(length(sieve) > 0) {
+            p <- sieve[1]
+            primes <- c(primes, p)  # Saving the first element of sieve in a list of prime numbers.
+            sieve <- sieve[(sieve %% p) != 0]   # Eliminating all the multiples of p, or the first element in sieve.
+        }
+        return(primes)
+    } else {
+        stop("Input value of n should be at least 2.")  # The first prime number is 2.
+    }
+}
+```
+
+The while loop takes the first element in the list sieve and designate the element as a prime number.
+Then the loop eliminates all the multiples of the first element in the sieve so that the first element after elimination can be a prime number again.
+
+#### Part(b)
+Once $p >= sqrt(n)$ all remaining entries in $sieve$ are prime because all the other entries in $sieve$ that are higher than $p$ but are non-prime numbers have been already eliminated for they are multiples of prime numbers smaller or equal to p.
+For example, let $n = 10$ and $p \geq \sqrt{n} = 4$. Then, $sieve = (2, 3, \not{4}, 5, \not{6}, 7, \not{8}, \not{9}, \not{10})$. All the non-prime numbers greater than $p$, (6, 8, 9, 10), have already been eliminated for they are multiples of 2, 3, 4, and 5. And the remaining elements in $sieve$ that are greater than $p$, 5 and 7, are the prime numbers.
+
+#### Part(c)
+```{r}
+Eratosthenes <- function(n) {
+    if (n >= 2) {
+        sieve <- seq(2, n)
+        primes <- c()
+        repeat {
+            p <- sieve[1]
+            primes <- c(primes, p)
+            sieve <- sieve[(sieve %% p) != 0]
+            if (p >= sqrt(n)) {
+                primes <- c(primes, sieve)
+                break
+            }
+        }
+        return(primes)
+    } else {
+        stop("Input value of n should be at least 2.")
+    }
+}
+```
+
+### Section 4.2.1
+#### Exercise 2
+#### Part(a)
+```{r}
+compound.interest <- function(P, i.r, n) {
+    interest <- P*(1 + i.r)^n
+    return(interest)
+}
+```
+
+#### Part(b)
+In this situation, $P = \${1000}, i.r = 1\% per month, n = 30 months$.
+Then, at the end of the 30 month period, Mr. Ng will have $\$$`r compound.interest(P=1000, i.r=0.01, n=30)`.
+
+#### Exercise 3
+```{r}
+# The function bisection have five arguments (a, b, func, nmax, tol) where a and b denote the two endpoints, func denote a user-supplied function, nmax denotes the number of maximum iteration in order to prevent an infinite loop, and tol for a level of tolerance .
+bisection <- function(a, b, func, nmax, tol) {
+    n <- 1
+    while(n <= nmax) {
+        c <- (a + b)/2
+        if(func(c) == 0 || (b - a)/2 < tol) return(c)
+        n <- n + 1
+        if(sign(c) == sign(a)) a <- c
+        else b <- c
+    }
+    return("Method failed.")
+}
+```
+
+### Section 4.4.1
+#### Exercise 1
+```{r}
+mergesort <- function(x, decreasing) {
+    len <- length(x)
+    if(len < 2) result <- x
+    else {
+        if(decreasing == TRUE) {
+            y <- x[1 : (len / 2)]
+            z <- x[(len / 2 + 1):len]
+            result <- c()
+            y <- mergesort(y, decreasing)
+            z <- mergesort(z, decreasing)
+            while(min(length(y), length(z)) > 0) {
+                if(y[1] > z[1]) {
+                    result <- c(result, y[1])
+                    y <- y[-1]
+                } else {
+                    result <- c(result, z[1])
+                    z <- z[-1]
+                }
+            }
+            if(length(y) > 0) result <- c(result, y)
+            else result <- c(result, z)
+        }
+        else {
+            y <- x[1 : (len / 2)]
+            z <- x[(len / 2 + 1):len]
+            result <- c()
+            y <- mergesort(y, decreasing)
+            z <- mergesort(z, decreasing)
+            while(min(length(y), length(z)) > 0) {
+                if(y[1] < z[1]) {
+                    result <- c(result, y[1])
+                    y <- y[-1]
+                } else {
+                    result <- c(result, z[1])
+                    z <- z[-1]
+                }
+            }
+            if(length(y) > 0) result <- c(result, y)
+            else result <- c(result, z)
+        }
+    }
+    return(result)
+}
+```
+
+#### Exercise 2
+#### Part(a)
+```{r}
+# install.packages("Deriv")
+library(Deriv)
+newton <- function(f, g, x0, y0, TOL) {
+    fx <- function(f, x, y) {
+        foo <- eval(Deriv(f, "x"))
+        return(foo(x, y))
+    }
+    fy <- function(f, x, y) {
+        foo <- eval(Deriv(f, "y"))
+        return(foo(x, y))
+    }
+    gx <- function(g, x, y) {
+        foo <- eval(Deriv(g, "x"))
+        return(foo(x, y))
+    }
+    gy <- function(g, x, y) {
+        foo <- eval(Deriv(g, "y"))
+        return(foo(x, y))
+    }
+    f1 <- f(x0, y0)
+    g1 <- g(x0, y0)
+    while(abs(f1) > TOL || abs(g1) > TOL) {
+        dn <- fx(f, x0, y0) * gy(g, x0, y0) - fy(f, x0, y0) * gx(g, x0, y0)
+        x1 <- x0 - (gy(g, x0, y0) * f(x0, y0) - fy(f, x0, y0) * g(x0, y0))/dn
+        y1 <- y0 - (fx(f, x0, y0) * g(x0, y0) - gx(g, x0, y0) * f(x0, y0))/dn
+        f1 <- f(x1, y1)
+        g1 <- g(x1, y1)
+        x0 <- x1
+        y0 <- y1
+        
+    }
+    return(c(x0, y0, f1, g1))
+}
+```
+
+#### Part(b)
+```{r}
+f <- function(x, y) x + y
+g <- function(x, y) x^2 + 2*y^2 - 2
+newton(f, g, x0 = -2, y0 = 4, TOL = 0.000001)
+```
+
+
+### Chapter 4
+#### Exercise 1
+```{r}
+directpoly <- function(x, c) {
+    p <- 0
+    n <- length(c)
+    for (i in 1 : n) {
+        p <- p + c[i]*x^(i-1)
+    }
+    return(p)
+}
+```
+
+#### Exercise 2
+```{r}
+hornerpoly <- function(x, c) {
+    n <- length(c)
+    a <- matrix(0, nrow = length(x), ncol = length(c))
+    a[, n] <- c[n]
+    for(i in (n - 1):1) {
+        a[, i] <- a[, i+1] * x + c[i]
+    }
+    return(a[, 1])
+}
+```
+
+#### Exercise 3
+#### Part(a)
+```{r}
+system.time(directpoly(x=seq(-10, 10, length=5000000), 
+                       c(1, -2, 2, 3, 4, 6, 7)))
+system.time(hornerpoly(x=seq(-10, 10, length=5000000), 
+                       c(1, -2, 2, 3, 4, 6, 7)))
+```
+Time elapsed for the directpoly function is about 2.50 while time elapsed for the hornerpoly function is about 0.97.
+Therefore, we can conclude that using the hornerpoly function is much faster compared to the directpoly function.
+
+#### Part(b)
+```{r}
+system.time(directpoly(x=seq(-10, 10, length=5000000), 
+                       c(-3, 17, 2)))
+system.time(hornerpoly(x=seq(-10, 10, length=5000000), 
+                       c(-3, 17, 2)))
+```
+Time elapse for the directpoly function is about 0.58 while time elapsed for the hornerpoly function is about 0.32.
+Although using the hornerpoly function is much faster, the time difference has been reduced by alot when the number of polynomial coefficients is smaller.
